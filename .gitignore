@@ -1,0 +1,36 @@
+# User-requested: do not upload the corpus directory
+gdpval_train_data_pipeline/data/corpus/
+
+# Environment / secrets
+.env
+.env.*
+*.key
+*.pem
+*.crt
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

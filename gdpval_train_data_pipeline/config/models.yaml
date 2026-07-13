@@ -1,0 +1,63 @@
+# ============================================================================
+# models.yaml — provider 适配 (可插拔)
+# Pilot 只用 glm + deepseek (有 key); gemini/gpt 的 key 到位后取消注释即接入。
+# key 从环境变量读 (见 ../.env), 不硬编码。
+# 端点/模型名已按官方文档核对 (2026-07)。
+# ============================================================================
+
+providers:
+  glm:
+    kind: openai_compatible
+    base_url: "https://open.bigmodel.cn/api/paas/v4"
+    model: "glm-5.2"
+    api_key_env: GLM_API_KEY
+    max_tokens: 32768
+    extra:                                   # GLM-5.2 深度思考
+      thinking: {type: enabled}
+      reasoning_effort: high
+    family: zhipu
+
+  deepseek:
+    kind: openai_compatible
+    base_url: "https://api.deepseek.com"
+    model: "deepseek-v4-pro"
+    api_key_env: DEEPSEEK_API_KEY
+    max_tokens: 16384
+    extra:
+      thinking: {type: enabled}
+      reasoning_effort: high
+    family: deepseek
+
+  # ---- 后续 key 到位后启用 (更真的跨家族 grader/仲裁) ----
+  # gemini:
+  #   kind: openai_compatible          # Gemini OpenAI-compat endpoint
+  #   base_url: "https://generativelanguage.googleapis.com/v1beta/openai"
+  #   model: "gemini-3.0-pro"
+  #   api_key_env: GEMINI_API_KEY
+  #   family: google
+  # gpt:
+  #   kind: openai_compatible
+  #   base_url: "https://api.openai.com/v1"
+  #   model: "gpt-5.5"
+  #   api_key_env: OPENAI_API_KEY
+  #   family: openai
+
+# ---- 角色分配 (可随 key 变化) --------------------------------------------
+roles:
+  # ⚠ 2026-07-13 阻断: GLM 与 DeepSeek 两个 key **均余额耗尽** (DeepSeek HTTP 402 Insufficient Balance;
+  #   GLM HTTP 429 code 1113 "余额不足或无可用资源包")。任一充值后, 无需改本文件, 直接跑 S3→S8 即恢复。
+  #   若只想单模型跑, 把下面两处的另一个家族临时删掉即可。
+  author: deepseek                            # 管线内 LLM 步 (partition/query_gen/rubric_gen) 的执行模型
+  generators: [glm, deepseek]                # top-2 都做批量生产
+  graders: [glm, deepseek]                    # 跨家族互评 (代码按 family 排除同族); +GPT/Gemini 更优
+  qc_candidates: [glm, deepseek]             # QC 打分候选, 选与锚点一致性最高者
+  arbiter: claude                             # 分歧仲裁 / 专家锚点 (现由 Claude 扮)
+
+# ---- 本地 embedding (S2 近邻成组) ----------------------------------------
+embedding:
+  kind: local_sentence_transformer
+  model: "Qwen/Qwen3-Embedding-0.6B"   # 本地权重 (已下载)
+  normalize: true
+  batch_size: 16
+  device: auto                                # cuda 若可用否则 cpu
+  fallback: null                              # 若本机无权重 -> 搭建时报错提示, 不静默降级

@@ -1,0 +1,16 @@
+# final/ 管线依赖
+pyyaml>=6.0
+requests>=2.31
+numpy>=1.24
+pandas>=2.0
+# PDF/文档抽取与生成
+pymupdf>=1.23          # PDF -> 文本/章节 (S1)
+python-docx>=1.1       # docx 交付物
+openpyxl>=3.1          # xlsx 交付物
+reportlab>=4.0         # pdf 兜底
+weasyprint>=60         # pdf 主路 (HTML->PDF, 有系统依赖 pango/cairo)
+jinja2>=3.1
+matplotlib>=3.7
+# 本地 embedding (S2)
+sentence-transformers>=3.0
+torch>=2.0

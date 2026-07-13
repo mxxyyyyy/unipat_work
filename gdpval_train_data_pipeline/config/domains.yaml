@@ -1,0 +1,157 @@
+# ============================================================================
+# domains.yaml — 唯一真相源 (single source of truth)
+# 5 个 pilot 领域 + 职业轴 + 交付物类型 + 语料源。
+# 所有 stage 与领域特定 prompt 都从这里取领域上下文。
+# 详见 ../README.md 二、目录结构
+# ============================================================================
+
+# ---- 交付物类型定义 (deliverable types) ----------------------------------
+# 每个 bundle 在 S2 会被门控标注它能支持哪些类型 (has_tables -> data_xlsx 等)。
+deliverable_types:
+  prose_md:
+    desc: "Markdown 分析报告/简报 (纯文字, 无需沙箱)"
+    tool: none
+    requires: {tabular_data: false}
+  prose_docx:
+    desc: "Word 文档 (python-docx)"
+    tool: python-docx
+    requires: {tabular_data: false}
+  prose_pdf:
+    desc: "PDF 报告 (agent 写 HTML/CSS -> weasyprint; 兜底 reportlab)"
+    tool: weasyprint
+    requires: {tabular_data: false}
+  data_xlsx:
+    desc: "Excel 工作簿 / 数据分析 (openpyxl + pandas), 走 agent+沙箱"
+    tool: openpyxl
+    requires: {tabular_data: true}          # 只有含表格/时间序列的 bundle 才出
+
+pilot_deliverable_mix:                        # pilot 以 prose 为主 + 少量 xlsx
+  prose_share: 0.85
+  xlsx_cap: 4                                 # xlsx 任务上限 (走通 agent 链路)
+
+# ---- 5 个领域 -------------------------------------------------------------
+domains:
+  - key: sovereign
+    name_zh: 主权/国别宏观与债务风险
+    status: has_corpus
+    description: >
+      国别宏观形势、主权信用与债务可持续性、财政与外部脆弱性。语料以世行国别
+      Economic/Development Update 为主。
+    corpus_sources: [worldbank, bis]
+    occupations:
+      - {id: sovereign_risk_analyst, zh: 主权风险分析师(评级/投行), products: [国别信用评估, 评级委员会备忘]}
+      - {id: country_desk_economist, zh: IMF/世行国别桌面经济学家, products: [Article IV 式国别简报, 债务可持续性分析DSA]}
+      - {id: em_fixed_income_strategist, zh: 新兴市场固收策略师, products: [主权债投资观点, 利差分析]}
+      - {id: country_risk_officer, zh: 出口信用/国别风险官, products: [国别限额建议备忘]}
+    deliverable_types: [prose_md, prose_docx, prose_pdf, data_xlsx]
+
+  - key: monetary
+    name_zh: 货币政策与宏观展望
+    status: has_corpus
+    description: >
+      货币政策立场、通胀与增长展望、利率路径。语料: Fed 货币政策报告 / ECB
+      Economic Bulletin / BIS 季度评论与年报。
+    corpus_sources: [fed, ecb, bis]
+    occupations:
+      - {id: cb_staff_economist, zh: 央行研究经济学家, products: [货币政策简报, 通胀展望]}
+      - {id: macro_strategist, zh: 买方宏观策略师, products: [利率路径展望, FOMC/ECB 前瞻]}
+      - {id: bank_chief_economist, zh: 银行首席经济学家团队, products: [宏观季度展望]}
+      - {id: rates_desk_analyst, zh: 利率交易台分析师, products: [政策情景与曲线分析]}
+    deliverable_types: [prose_md, prose_docx, prose_pdf, data_xlsx]
+
+  - key: fin_stability
+    name_zh: 金融稳定与系统性风险
+    status: has_corpus
+    description: >
+      系统性风险评估、金融体系脆弱性、宏观审慎政策。语料: Fed FSR / ECB FSR /
+      BIS 稳定章节。
+    corpus_sources: [fed, ecb, bis]
+    occupations:
+      - {id: fin_stability_analyst, zh: 金融稳定分析师(央行/IMF), products: [系统性风险评估, FSR 式章节]}
+      - {id: macroprudential_analyst, zh: 宏观审慎政策分析师, products: [逆周期缓冲/工具建议备忘]}
+      - {id: stress_test_modeler, zh: 压力测试建模师, products: [情景压力测试摘要]}
+      - {id: risk_research, zh: 卖/买方风险研究, products: [尾部风险简报]}
+    deliverable_types: [prose_md, prose_docx, prose_pdf, data_xlsx]
+
+  - key: banking
+    name_zh: 银行体系稳健性
+    status: needs_crawl
+    description: >
+      银行体系资本/资产质量/盈利/流动性、监管审查、同业对标。语料需定向爬:
+      EBA Risk Assessment / FDIC Quarterly Banking Profile / IMF FSAP / 压力测试结果。
+    corpus_sources: [eba, fdic, imf_fsap]
+    crawl_targets:
+      - "EBA Risk Assessment Report / Risk Dashboard"
+      - "FDIC Quarterly Banking Profile"
+      - "IMF FSAP / Financial System Stability Assessment"
+      - "银行业压力测试结果 (EBA/Fed CCAR/DFAST 公开摘要)"
+    occupations:
+      - {id: bank_credit_analyst, zh: 银行信用分析师, products: [银行体系稳健性评估, 同业对标]}
+      - {id: prudential_supervisor, zh: 监管审查员(EBA/Fed/FDIC), products: [监管审查备忘, CAMELS 式评估]}
+      - {id: bank_equity_research, zh: 银行股票研究员, products: [行业信用/盈利研报]}
+      - {id: asset_quality_analyst, zh: 资产质量/拨备分析师, products: [不良与拨备覆盖分析]}
+    deliverable_types: [prose_md, prose_docx, prose_pdf, data_xlsx]
+
+  - key: cross_border
+    name_zh: 跨境资本流动/外部部门
+    status: needs_crawl
+    description: >
+      国际收支、跨境资本流动、外部脆弱性、外储与汇率压力。语料需定向爬:
+      BIS International Banking Statistics / IMF BOP & External Sector / IIF Capital Flows。
+    corpus_sources: [bis_stats, imf_bop, iif]
+    crawl_targets:
+      - "BIS International Banking Statistics / Global Liquidity"
+      - "IMF Balance of Payments & External Sector Report"
+      - "IIF Capital Flows Tracker / Report"
+    occupations:
+      - {id: bop_economist, zh: 国际收支/外部部门经济学家, products: [外部脆弱性评估]}
+      - {id: capital_flows_strategist, zh: 跨境资本流动策略师, products: [资本流动与汇率压力简报]}
+      - {id: reserve_manager, zh: 储备管理/主权财富分析师, products: [外储充足性评估]}
+      - {id: global_banking_stats_analyst, zh: 全球银行业统计分析师, products: [跨境敞口分析]}
+    deliverable_types: [prose_md, prose_docx, prose_pdf, data_xlsx]
+
+# ---- S4 质检: 8 项二值硬门槛 (全 pass 才留, 无软打分) --------------------
+qc_hard_gates:
+  - {id: solvable,        zh: 可解性,   desc: "能仅凭 reference + 通识解出 (GDPval 核心判据)"}
+  - {id: zero_leakage,    zh: 零泄漏,   desc: "答案不在 reference 里 (answer_key 关键结论不得出现于 cleaned)"}
+  - {id: on_domain,       zh: 在领域,   desc: "符合所属领域与所选职业"}
+  - {id: has_deliverable, zh: 有交付物, desc: "明确的工作产物 + 格式要求"}
+  - {id: non_trivial,     zh: 非trivial, desc: "非 5 分钟活, 需数小时专业工作"}
+  - {id: unambiguous,     zh: 无歧义,   desc: "well-specified, 指令清晰"}
+  - {id: representative,  zh: 真实,     desc: "读起来像该职业真实工作产物, 非人造题"}
+  - {id: coherent,        zh: 子任务贯通, desc: "多子任务构成一道连贯任务, 非硬凑"}
+
+# ---- S5 rubric: GDPval 评分维度 (每条 rubric 必含) ------------------------
+gdpval_dimensions:
+  - {id: accuracy,               zh: 准确性,        desc: "严格遵循指令 + 计算正确 + 不编造数据 + 忠于 reference"}
+  - {id: instruction_following,  zh: 指令遵循与完整, desc: "所有子任务已答 + 真交付了产物 + 格式正确"}
+  - {id: formatting_aesthetics,  zh: 格式与审美,     desc: "专业排版, 表格/图表, 文档打磨"}
+  - {id: structure_style_relevance, zh: 结构风格相关性, desc: "结构清晰, 风格得体, 内容相关"}
+gdpval_failure_guards:                          # rubric 要设防的三大失败模式
+  - "承诺却不交付 (promised but no deliverable)"
+  - "忽略参考数据 (ignored reference data)"
+  - "用错格式 (wrong format)"
+
+# ---- S2 近邻成组 (neighbor_grouping) 参数 ---------------------------------
+neighbor_grouping:
+  method: knn_ego_neighborhood                  # 非划分式聚类: ε-邻域 + kNN 上限, 重叠 ego-network
+  cap: 3                                         # bundle 上限文件数 (种子 + 邻居)
+  threshold_strategy: absolute                   # 用绝对余弦阈值 (稳定/可预期; 分位数在小领域会误排除近似 doc)
+  min_similarity: 0.45                            # **唯一阈值**: 邻居 cos>=此值才入组。越高分组越紧, 越低越易成多文件 bundle
+  dedup: true                                    # 相同/子集 bundle 去重
+  isolated_as_single: true                       # 无邻居过阈值的 doc -> 单文件 bundle
+
+# ---- 抽样量 (专家锚点校准集) ---------------------------------------------
+sampling:
+  qc_anchor_per_domain: 10                       # 每领域 10 条 Claude 锚点标注 (选 QC 模型)
+  select_anchor_per_domain: 10                   # 每领域 10 条排序标注 (选 generator/grader 模型)
+
+# ---- S7 rollout ----------------------------------------------------------
+# S6 从 candidates 中选出**最优**的单个 output 模型; S7 用该单模型每 query 产 n_per_query 份。
+rollout:
+  n_per_query: 3                                 # 选定的单个 output 模型每 query 产 3 份
+  candidates: [glm, deepseek]                    # S6 选型候选 (锚点一致性/得分最高者胜出)
+  default_generator: deepseek                    # 无锚点/未选型时的默认 output 模型
+  temperature: 0.9                               # 高一点保多样性
+  keep: all                                       # 全存带分, 标 best
+  # 注: grader 仍跨家族 —— 若 output=deepseek, 则 glm 打分 (S8 pick_graders 按 family 排除同族)

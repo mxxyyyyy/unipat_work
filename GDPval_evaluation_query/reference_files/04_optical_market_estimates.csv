@@ -1,0 +1,13 @@
+# DATA STATUS: CITED THIRD-PARTY ESTIMATE (PROPRIETARY) — NOT L1-VERIFIABLE. The market-size and
+# shipment figures below are LightCounting / Yole-Développement-style HEADLINE estimates, cited as
+# directional industry context. They are proprietary third-party research and CANNOT be verified
+# against a free primary source the way SEC 10-K figures (files 01/02) can. They are provided so the
+# analyst can size the opportunity; do NOT present them as first-party verified facts. Ranges/rounding
+# reflect the dispersion across sell-side and market-research estimates. e = estimate/forecast.
+metric,unit,y2024,y2025e,y2026e,y2027e,source_class
+Datacenter optical transceiver market (revenue),USD_bn,13,19,24,28,"LightCounting/Yole-style headline estimate (proprietary; context only)"
+800G transceiver shipments,million_units,7,16,22,24,"LightCounting/Yole-style headline estimate (proprietary; context only)"
+1.6T transceiver shipments,million_units,0,3,12,22,"LightCounting/Yole-style headline estimate (proprietary; context only)"
+CPO-attached switch/XPU ports (industry),million_ports,0.0,0.3,2,8,"LightCounting/Yole-style headline estimate (proprietary; context only)"
+CPO-related optical revenue (silicon photonics engines + ELS),USD_bn,0.1,0.4,1.2,3.5,"LightCounting/Yole-style headline estimate (proprietary; context only)"
+Share of AI back-end interconnect still on pluggable optics,percent,99,97,90,78,"LightCounting/Yole-style headline estimate (proprietary; context only)"

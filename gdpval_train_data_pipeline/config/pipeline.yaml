@@ -1,0 +1,52 @@
+# ============================================================================
+# pipeline.yaml — 管线全局参数 (路径/规模/沙箱)。领域/模型见 domains.yaml/models.yaml
+# ============================================================================
+
+paths:
+  corpus: data/corpus            # 原始 PDF (现有 25 + 新爬)
+  cleaned: data/cleaned          # S1 产: reference (数据层)
+  answer_keys: data/answer_keys  # S1 产: 剥出的结论 (隐藏锚点)
+  bundles: outputs/bundles.jsonl # S2 产
+  queries: outputs/queries.jsonl # S3 产 (含 QC 结果)
+  items: outputs/items.jsonl     # 主表 (GDPval schema 超集)
+  reference_files: outputs/reference_files
+  deliverable_files: outputs/deliverable_files
+  scores: outputs/scores.jsonl
+
+scale:
+  target_qc_passed: [50, 100]    # pilot 目标: 通过质检的 query 数
+  # 生成目标贴近产量目标 (纯硬门槛无排序, 别大幅过量)
+
+partition:                        # S1
+  workers: 6                       # 分块并发数 (GLM 单账户限流较紧, 16 会触发 429 退避; 6 稳定)
+  max_paras: 600                   # 超大文档段落上限 (保留前部主体章节; 控成本/时延)
+  segment_labels: [data, analysis, conclusion]
+  keep_in_reference: [data]       # reference 只留数据层
+  answer_key: [analysis, conclusion]
+  leakage_check: true             # answer_key 关键结论词不得出现在 cleaned
+
+agent:                            # S7
+  max_turns: 12
+  workers: 8                       # 并发 agent 会话数
+  sandbox:
+    kind: subprocess              # pilot: subprocess + 超时 + 包白名单; Docker 作加固路径
+    timeout_sec: 120
+    mem_mb: 2048
+    package_allowlist: [pandas, numpy, openpyxl, matplotlib, reportlab, python-docx, weasyprint, jinja2]
+  file_stack:
+    docx: python-docx
+    xlsx: openpyxl
+    pdf: weasyprint               # agent 写 HTML/CSS -> weasyprint; 兜底 reportlab
+    pdf_fallback: reportlab
+
+grading:                          # S8
+  scale: additive                 # GDPval [+N] 累加
+  workers: 8                       # 并发打分数
+  cross_family_only: true         # grader 必须与 generator 跨家族
+  arbiter_on_disagreement: 0.25   # 归一化分差 > 此阈值 -> Claude 仲裁
+
+seed: 42
+offline_first: true               # 无 key/无网可跑 stub 部分; 真调用需 .env
+
+qc:
+  workers: 8                       # S4 并发质检

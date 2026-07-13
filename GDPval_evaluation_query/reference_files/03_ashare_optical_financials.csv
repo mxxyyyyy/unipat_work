@@ -1,0 +1,14 @@
+# DATA STATUS: BEST-EFFORT / RECONFIRM AGAINST FILINGS. The rows below are assembled from
+# public A-share annual reports (年报) and interim disclosures from general knowledge; they are
+# NOT machine-fetched and NOT L1-verified against a live filing feed. Every figure is rounded and
+# must be reconfirmed against the company's 巨潮资讯 / 年报 before use. Currency: RMB million.
+# The CPO grader's numeric gate (verify_numbers.py) only checks that the gold report is INTERNALLY
+# CONSISTENT with these cells; it does NOT assert the cells match a live source (unlike files 01/02,
+# which are live SEC EDGAR). Treat as directional context, not verified fact.
+company,ticker,segment,revenue_2023_rmb_mn,revenue_2024_rmb_mn,revenue_yoy_2024_pct,gross_margin_2023_pct,gross_margin_2024_pct,data_status
+中际旭创 Innolight,300308.SZ,光模块 (800G/1.6T optical modules),10718,23862,122.6,30.5,33.3,best_effort_reconfirm
+新易盛 Eoptolink,300502.SZ,光模块 (800G/1.6T optical modules),3102,8648,178.8,29.6,44.0,best_effort_reconfirm
+天孚通信 T&S Communications,300394.SZ,光器件·光引擎·连接器 (passive/active components),1935,3377,74.5,55.5,54.0,best_effort_reconfirm
+光迅科技 Accelink,002281.SZ,光模块·光芯片·光器件 (modules + in-house chips),6196,7200,16.2,21.0,22.0,best_effort_reconfirm
+源杰科技 Yuanjie,688498.SH,光芯片·CW/DFB 激光器 (laser chips / light source),146,309,111.6,45.0,40.0,best_effort_reconfirm
+太辰光 Tarluz,300570.SZ,光纤连接器·MPO·fiber shuffle (fiber connectivity),940,1500,59.6,30.0,30.5,best_effort_reconfirm
