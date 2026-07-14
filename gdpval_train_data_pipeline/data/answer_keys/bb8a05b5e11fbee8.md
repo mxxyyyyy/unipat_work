@@ -2,7 +2,7 @@ Figure 7: The current account deficit narrowed, supported by higher agricultural
 
 Figure 10: Official reserves remain sufficient and now above the statutory minimum.................................................................................................. 6
 
-Figure 13: Credit to private sector declined amid high interest rates and exchange rate effects on foreign currency loans ���������������� 8
+Figure 13: Credit to private sector declined amid high interest rates and exchange rate effects on foreign currency loans ................ 8
 
 Figure 14: Banks asset quality declined as NPLs continued to increase.................................................................................................................................... 8
 
